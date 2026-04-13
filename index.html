@@ -441,8 +441,76 @@
           onclick="window.__financeHeroCookieChoice && window.__financeHeroCookieChoice('accept', this); this.closest('.cookie-banner') && (this.closest('.cookie-banner').hidden = true); this.closest('.cookie-banner') && this.closest('.cookie-banner').classList.add('is-hidden');"
         >
           Aceitar
-        </button>
-      </div>
+           </div>
     </div>
+
+    <script>
+      (function () {
+        const form = document.querySelector('.lead-form');
+        const feedback = document.querySelector('.form-feedback');
+
+        if (!form) return;
+
+        function setFeedback(message, type = 'info') {
+          if (!feedback) return;
+          feedback.textContent = message;
+          feedback.style.color = type === 'error' ? '#b42318' : '#067647';
+        }
+
+        form.addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+          }
+
+          const payload = {
+            fullName: form.querySelector('[name="fullName"]')?.value?.trim() || '',
+            company: form.querySelector('[name="company"]')?.value?.trim() || '',
+            email: form.querySelector('[name="email"]')?.value?.trim() || '',
+            phone: form.querySelector('[name="phone"]')?.value?.trim() || '',
+            cnpj: form.querySelector('[name="cnpj"]')?.value?.trim() || '',
+            revenueRange: form.querySelector('[name="revenueRange"]')?.value || '',
+            challenge: form.querySelector('[name="challenge"]')?.value?.trim() || '',
+            consent: form.querySelector('[name="consent"]')?.checked === true,
+            pagePath: window.location.pathname,
+            pageUrl: window.location.href,
+            referrer: document.referrer || null,
+            source: 'landing_page'
+          };
+
+          try {
+            const response = await fetch('https://ywunjlsrfidsppicwqqr.supabase.co/functions/v1/lead-capture', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              setFeedback(data.error || 'Erro ao enviar lead.', 'error');
+              return;
+            }
+
+            setFeedback('Lead enviado com sucesso.', 'success');
+            form.reset();
+          } catch (error) {
+            console.error(error);
+            setFeedback('Erro de conexão ao enviar lead.', 'error');
+          } finally {
+            if (submitButton) {
+              submitButton.disabled = false;
+              submitButton.textContent = 'Enviar e solicitar diagnóstico grátis';
+            }
+          }
+        });
+      })();
+    </script>
+
   </body>
 </html>
