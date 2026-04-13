@@ -3,6 +3,10 @@ window.FINANCEHERO_CONFIG = {
   calendlyUrl: "https://calendly.com/giovanni-financehero/30min",
   whatsappUrl: "",
   contactEmail: "giovanni@financehero.com.br",
+  leadDelivery: {
+    provider: "formsubmit",
+    endpoint: "https://formsubmit.co/ajax/giovanni@financehero.com.br"
+  },
   consentVersion: "2026-04",
   analyticsEnabled: true,
   supabase: {
