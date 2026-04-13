@@ -3,6 +3,10 @@ const defaultConfig = {
   calendlyUrl: "",
   whatsappUrl: "",
   contactEmail: "giovanni@financehero.com.br",
+  leadDelivery: {
+    provider: "",
+    endpoint: ""
+  },
   analyticsEnabled: true,
   consentVersion: "2026-04",
   storageKeys: {
@@ -615,6 +619,51 @@ function validateLeadPayload(payload) {
 }
 
 async function sendLead(payload) {
+  const leadEndpoint = config.leadDelivery?.endpoint || "";
+
+  if (leadEndpoint) {
+    const response = await fetch(leadEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        _subject: `Novo lead FinanceHero - ${payload.company || payload.fullName}`,
+        nome: payload.fullName,
+        empresa: payload.company,
+        email: payload.email,
+        telefone: payload.phone,
+        cnpj: payload.cnpj,
+        faturamento: payload.revenueRange,
+        desafio: payload.challenge,
+        consentimento: payload.consent ? "sim" : "nao",
+        versao_consentimento: payload.consentVersion || "",
+        consentimento_analytics: payload.consentAnalytics ? "sim" : "nao",
+        origem: payload.source || "",
+        pagina: payload.pageUrl || "",
+        caminho_pagina: payload.pagePath || "",
+        referrer: payload.referrer || "",
+        session_id: payload.sessionId || "",
+        qualificacao: payload.qualification || "",
+        utm_source: payload.attribution?.utm_source || "",
+        utm_medium: payload.attribution?.utm_medium || "",
+        utm_campaign: payload.attribution?.utm_campaign || "",
+        utm_content: payload.attribution?.utm_content || "",
+        utm_term: payload.attribution?.utm_term || "",
+        landing_page: payload.attribution?.landing_page || "",
+        primeiro_referrer: payload.attribution?.first_referrer || ""
+      })
+    });
+
+    if (!response.ok) {
+      const errorBody = await safeJson(response);
+      throw new Error(errorBody?.message || "Falha ao enviar lead por e-mail.");
+    }
+
+    return { leadId: `email-${createUuid()}`, mode: "email" };
+  }
+
   const functionName = config.supabase?.functions?.captureLead || "capture-lead";
 
   if (!hasSupabaseConfig()) {
