@@ -615,7 +615,7 @@ function validateLeadPayload(payload) {
 }
 
 async function sendLead(payload) {
-  const functionName = config.supabase?.functions?.captureLead || "capture-lead";
+  const functionName = config.supabase?.functions?.captureLead || "lead-capture";
 
   if (!hasSupabaseConfig()) {
     const leadId = `demo-${createUuid()}`;
