@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://financehero.com.br/sitemap.xml
